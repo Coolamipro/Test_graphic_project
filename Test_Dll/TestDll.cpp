@@ -382,6 +382,20 @@ void testdll::cBaseGeometry::Draw(HDC hdc, cScene& scene)
 		cVector v2 = scene.ScreenProjection(i->p2);
 		cVector v3 = scene.ScreenProjection(i->p3);
 
+		m_edge1.m_i = v1.m_i - v2.m_i;
+		m_edge1.m_j = v1.m_j - v2.m_j;
+		m_edge1.m_k = v1.m_k - v2.m_k;
+		m_edge2.m_i = v2.m_i - v3.m_i;
+		m_edge2.m_j = v2.m_j - v3.m_j;
+		m_edge2.m_k = v2.m_k - v3.m_k;
+
+		m_norm = m_edge1.prod(m_edge2);
+		m_norm.Normalize();
+
+		double angle = m_view_v.GetAngleBetween(m_norm);
+
+		if (angle > 1.570796) continue;
+
 		MoveToEx(hdc, (int)v1.m_i, (int)v1.m_j, NULL);
 		LineTo(hdc, (int)v2.m_i, (int)v2.m_j);
 		LineTo(hdc, (int)v3.m_i, (int)v3.m_j);
@@ -528,7 +542,7 @@ void testdll::cSphere::CreateMesh()
 				continue;
 			}
 			if (j == (horiz - 1)) {
-				m_triangles->push_back(new cTriangle(bottom, t2[j], t1[j]));
+				m_triangles->push_back(new cTriangle(bottom, t1[j], t2[j]));
 				continue;
 			}
 			m_triangles->push_back(new cTriangle(t1[j - 1], t2[j - 1], t2[j]));
@@ -651,7 +665,7 @@ cVector testdll::cCamera::ScreenProjection(const cVector& vec) const
 	double delta = (abs(temp.m_k) > 0.000001) ? (m_camera_plan / temp.m_k) * m_scale : 1.0 * m_scale;
 	temp.m_i = temp.m_i * delta + m_screen_width / 2.0;
 	temp.m_j = temp.m_j * delta + m_screen_height / 2.0;
-	temp.m_k = 0.0;
+	//temp.m_k = 0.0;
 
 
 	return temp;

@@ -122,6 +122,16 @@ namespace testdll {
 		//Points of mesh
 		std::vector<cTriangle*>* m_triangles;
 
+		// Edge vectors
+		cVector m_edge1, m_edge2;
+
+		// Temp normal vector of triangle
+		cVector m_norm;
+
+		// Vector of camera
+		// Always equal to Z axis vector (at screen view)
+		cVector m_view_v = cVector(0.0, 0.0, 1.0, 1);
+
 
 		// Properties for show
 		// Width of pen
