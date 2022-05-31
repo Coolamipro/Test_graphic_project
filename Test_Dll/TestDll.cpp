@@ -338,6 +338,8 @@ void testdll::cBaseGeometry::SetColor(int R, int G, int B)
 {
 	if (R > 255 || G > 255 || B > 255) return;
 	m_color = RGB(R, G, B);
+	DeleteObject(m_pen);
+	m_pen = CreatePen(PS_SOLID, m_pen_width, m_color);
 }
 
 void testdll::cBaseGeometry::Rotate(double A, double B, double C)
@@ -366,15 +368,19 @@ void testdll::cBaseGeometry::Move(const cPoint& distance)
 
 void testdll::cBaseGeometry::Draw(HDC hdc, cScene& scene)
 {
-	HPEN pen;
+
+	//HPEN pen;
+	HGDIOBJ prev;
 	if (m_ishighlight) {
-		pen = CreatePen(PS_SOLID, m_pen_width, m_highlight);
+		/*pen = CreatePen(PS_SOLID, m_pen_width, m_highlight);*/
+		prev = SelectObject(hdc, GetPen());
 	}
 	else {
-		pen = CreatePen(PS_SOLID, m_pen_width, m_color);
+		/*pen = CreatePen(PS_SOLID, m_pen_width, m_color);*/
+		prev = SelectObject(hdc,scene.GetHLPen());
 	}
 
-	HGDIOBJ prev = SelectObject(hdc, pen);
+	//HGDIOBJ prev = SelectObject(hdc, pen);
 
 	for (auto i : *m_triangles) {
 
@@ -408,6 +414,14 @@ void testdll::cBaseGeometry::Draw(HDC hdc, cScene& scene)
 testdll::cBaseGeometry::~cBaseGeometry()
 {
 	ClearMesh();
+}
+
+HPEN testdll::cBaseGeometry::GetPen()
+{
+	if (m_pen) return m_pen;
+
+	m_pen = CreatePen(PS_SOLID, m_pen_width, m_color);
+	return m_pen;
 }
 
 testdll::cBaseGeometry::cBaseGeometry()
@@ -538,7 +552,7 @@ void testdll::cSphere::CreateMesh()
 			t1[j].m_k = m_radius * cos(j * delta + delta);
 			if (i == 0)continue;
 			if (j == 0) {
-				m_triangles->push_back(new cTriangle(top, t1[j], t2[j]));
+				m_triangles->push_back(new cTriangle(top, t2[j], t1[j]));
 				continue;
 			}
 			if (j == (horiz - 1)) {
@@ -761,6 +775,8 @@ testdll::cScene::cScene() {
 	m_geometry = new std::vector<cBaseGeometry*>();
 	m_curptr = nullptr;
 	m_curpos = -1;
+
+	m_hl_pen = CreatePen(PS_SOLID, 3, RGB(255, 202, 66));
 }
 
 
@@ -949,6 +965,11 @@ void testdll::cScene::RotateCamera(const cPoint& angles)
 	m_screen_cam.Rotate(angles.m_x, angles.m_y, angles.m_z);
 }
 
+HPEN testdll::cScene::GetHLPen()
+{
+	return m_hl_pen;
+}
+
 void testdll::cScene::DrawGeometry(HDC hdc)
 {
 	if (m_screen_cam.GetScreenWidth() == 0 || m_screen_cam.GetScreenHeight() == 0) return;
@@ -989,6 +1010,6 @@ void testdll::cScene::RotateCurrent(const cPoint& point) {
 
 void testdll::cScene::RotateAround(const cVector& vec, const cPoint& pt, double angle) {
 	if (m_curptr) {
-		m_curptr->Rotate(vec,pt,angle);
+		m_curptr->Rotate(vec, pt, angle);
 	}
 }

@@ -137,6 +137,10 @@ namespace testdll {
 		// Width of pen
 		int m_pen_width = 1;
 
+		HPEN m_pen = NULL;
+
+		HPEN GetPen();
+
 		// Color of shape
 		COLORREF m_color = RGB(0, 0, 0);
 
@@ -156,6 +160,8 @@ namespace testdll {
 
 		// Remove all triangles from mesh array.
 		void ClearMesh();
+
+
 
 	public:
 		int GetId();
@@ -272,9 +278,12 @@ namespace testdll {
 		int m_camera_plan = 1;
 
 		// Memory DC
-		HDC m_memDC;
-		HBITMAP m_backbuffer;
+		HDC m_memDC = NULL;
+		HBITMAP m_backbuffer = NULL;
 		HDC GetBuffer(HDC hdc);
+
+
+		HPEN m_hl_pen;
 
 
 		std::vector<cBaseGeometry*> *m_geometry;
@@ -316,6 +325,7 @@ namespace testdll {
 		cCamera& GetCamera();
 		void MoveCamera(const cPoint& point);
 		void RotateCamera(const cPoint& angles);
+		HPEN GetHLPen();
 
 		// Draw all geometry
 		void DrawGeometry(HDC hdc);
