@@ -170,6 +170,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 
+	case WM_SIZE:
+	{
+		InvalidateRect(hWnd, NULL, true);
+
+	}
+	break;
+
+	case WM_MOVE:
+	{
+		InvalidateRect(hWnd, NULL, true);
+		
+	}
+	break;
 	case WM_KEYDOWN:
 	{
 		switch (wParam) {
