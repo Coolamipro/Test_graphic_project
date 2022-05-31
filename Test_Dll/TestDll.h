@@ -261,11 +261,18 @@ namespace testdll {
 		int m_screen_height = 0;
 		int m_camera_plan = 1;
 
+		// Memory DC
+		HDC m_memDC;
+		HBITMAP m_backbuffer;
+		HDC GetBuffer(HDC hdc);
+
 
 		std::vector<cBaseGeometry*> *m_geometry;
 		//std::vector<cBaseGeometry*>::iterator* m_current;
 		cBaseGeometry* m_curptr;
 		size_t m_curpos = 0;
+
+
 
 
 	public:

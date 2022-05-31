@@ -728,6 +728,21 @@ int testdll::cCamera::GetScreenHeight()
 // cScene class functions
 ///////////////////////////
 
+HDC testdll::cScene::GetBuffer(HDC hdc)
+{
+	if (m_memDC) {
+		return m_memDC;
+	}
+
+	m_memDC = CreateCompatibleDC(hdc);
+
+	m_backbuffer = CreateCompatibleBitmap(hdc, m_screen_cam.GetScreenWidth(), m_screen_cam.GetScreenHeight());
+
+	SelectObject(m_memDC, m_backbuffer);
+
+	return m_memDC;
+}
+
 testdll::cScene::cScene() {
 	m_geometry = new std::vector<cBaseGeometry*>();
 	m_curptr = nullptr;
@@ -742,6 +757,15 @@ testdll::cScene::~cScene()
 	}
 	m_geometry->clear();
 	delete m_geometry;
+
+	if (m_memDC) {
+		DeleteDC(m_memDC);
+		m_memDC = NULL;
+	}
+	if (m_backbuffer) {
+		DeleteObject(m_backbuffer);
+		m_backbuffer = NULL;
+	}
 }
 
 void testdll::cScene::SetNext()
@@ -915,10 +939,19 @@ void testdll::cScene::DrawGeometry(HDC hdc)
 {
 	if (m_screen_cam.GetScreenWidth() == 0 || m_screen_cam.GetScreenHeight() == 0) return;
 
+	// Create compatible DC for drawing
+	HDC DC = GetBuffer(hdc);
+	//
+	RECT rt = {
+		0,0,m_screen_cam.GetScreenWidth(),m_screen_cam.GetScreenHeight()
+	};
+	FillRect(DC, &rt, (HBRUSH)::GetStockObject(WHITE_BRUSH));
+
 	for (auto& i : *m_geometry) {
-		i->Draw(hdc, *this);
+		i->Draw(DC/*hdc*/, *this);
 	}
 
+	BitBlt(hdc, 0, 0, m_screen_cam.GetScreenWidth(), m_screen_cam.GetScreenHeight(), DC, 0, 0, SRCCOPY);
 }
 
 cVector testdll::cScene::ScreenProjection(const cVector& vec)
